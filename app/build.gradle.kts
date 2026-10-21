@@ -52,6 +52,7 @@ dependencies {
     implementation(libs.compose.activity)
     implementation(libs.compose.viewmodel)
     implementation(libs.compose.lifecycle)
+    implementation(libs.room.common)
     debugImplementation(libs.compose.ui.tooling)
 
     // Location & Maps
