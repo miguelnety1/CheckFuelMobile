@@ -55,7 +55,8 @@ dependencies {
     implementation(libs.room.common)
     debugImplementation(libs.compose.ui.tooling)
 
-    // Location & Maps
+    // Location & Maps (OpenStreetMap & Play Services)
+    implementation(libs.osmdroid.android)
     implementation(libs.play.services.location)
     implementation(libs.play.services.maps)
     implementation(libs.maps.compose)
