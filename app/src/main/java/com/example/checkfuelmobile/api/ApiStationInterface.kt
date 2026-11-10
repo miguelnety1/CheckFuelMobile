@@ -9,10 +9,15 @@ interface ApiStationInterface {
     @GET("stations")
     fun getStations(): Call<List<Station>>
 
+    // Petición estándar limpia sin parámetros URL para obtener todas las gasolineras
     @GET("stations")
-    suspend fun getStationsList(
-        @Query("lat") lat: Double? = null,
-        @Query("lng") lng: Double? = null,
-        @Query("radius") radiusKm: Double? = null
+    suspend fun getStationsList(): List<Station>
+
+    // Petición opcional por cercanía si el servidor soporta parámetros espaciales
+    @GET("stations")
+    suspend fun getStationsNearby(
+        @Query("lat") lat: Double,
+        @Query("lng") lng: Double,
+        @Query("radius") radiusKm: Double
     ): List<Station>
 }

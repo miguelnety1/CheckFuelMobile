@@ -55,17 +55,26 @@ class StationViewModel : ViewModel() {
         fetchStations()
     }
 
-    /** Realiza la petición HTTP permitiendo filtrado por coordenadas y radio en el servidor */
+    /** Realiza la petición HTTP a la API. Si hay coordenadas y radio válidos usa la consulta cercana, de lo contrario la estándar */
     fun fetchStations(
         lat: Double? = _userLocation.value?.first,
         lng: Double? = _userLocation.value?.second,
-        radiusKm: Double? = 30.0
+        radiusKm: Double? = null
     ) {
         _uiState.value = StationUiState.Loading
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                // Enviamos latitud, longitud y radio opcionales al backend
-                val list = ApiStation.apiService.getStationsList(lat = lat, lng = lng, radiusKm = radiusKm)
+                // Si disponemos de lat, lng y radio llamamos a getStationsNearby; si no, hacemos la llamada limpia getStationsList()
+                val list = if (lat != null && lng != null && radiusKm != null) {
+                    try {
+                        ApiStation.apiService.getStationsNearby(lat, lng, radiusKm)
+                    } catch (e: Exception) {
+                        // Fallback a lista completa si el backend no soporta getStationsNearby
+                        ApiStation.apiService.getStationsList()
+                    }
+                } else {
+                    ApiStation.apiService.getStationsList()
+                }
                 rawStations.value = list
                 _uiState.value = StationUiState.Success(list)
             } catch (e: Exception) {

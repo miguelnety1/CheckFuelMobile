@@ -86,9 +86,20 @@ import java.util.Locale
 fun HomeScreen(viewModel: StationViewModel = viewModel()) {
     val context = LocalContext.current
 
-    // Configuración inicial de osmdroid
-    LaunchedEffect(Unit) {
-        Configuration.getInstance().userAgentValue = context.packageName
+    // Inicialización y configuración crítica de osmdroid previa a la creación del MapView
+    val mapView = remember {
+        Configuration.getInstance().apply {
+            userAgentValue = "CheckFuelMobileApp/1.0 (Android)"
+            osmdroidBasePath = context.cacheDir
+            osmdroidTileCache = context.cacheDir
+        }
+        MapView(context).apply {
+            setTileSource(TileSourceFactory.MAPNIK)
+            setMultiTouchControls(true)
+            setBuiltInZoomControls(false)
+            controller.setZoom(12.0)
+            controller.setCenter(GeoPoint(40.416775, -3.703790))
+        }
     }
 
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
@@ -137,10 +148,7 @@ fun HomeScreen(viewModel: StationViewModel = viewModel()) {
     )
     val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = bottomSheetState)
 
-    // Referencia única al MapView de osmdroid
-    val mapView = remember { MapView(context) }
-
-    // Capa de ubicación creada ÚNICAMENTE cuando el permiso es concedido (evita el congelamiento)
+    // Capa de ubicación creada ÚNICAMENTE cuando el permiso es concedido
     var locationOverlay by remember { mutableStateOf<MyLocationNewOverlay?>(null) }
 
     LaunchedEffect(hasLocationPermission) {
@@ -167,7 +175,6 @@ fun HomeScreen(viewModel: StationViewModel = viewModel()) {
         onDispose {
             locationOverlay?.disableMyLocation()
             mapView.onPause()
-            mapView.onDetach()
         }
     }
 

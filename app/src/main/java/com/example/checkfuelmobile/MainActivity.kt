@@ -21,8 +21,12 @@ class MainActivity : ComponentActivity() {
 
         // Configuración crítica de osmdroid antes de cargar el MapView:
         // Evita el error 403 Forbidden y permite el almacenamiento en caché de tiles
-        Configuration.getInstance().userAgentValue = packageName
-        Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this))
+        Configuration.getInstance().apply {
+            userAgentValue = "CheckFuelMobileApp/1.0 (Android)"
+            osmdroidBasePath = cacheDir
+            osmdroidTileCache = cacheDir
+            load(this@MainActivity, PreferenceManager.getDefaultSharedPreferences(this@MainActivity))
+        }
 
         setContent {
             MaterialTheme {
